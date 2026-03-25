@@ -1,4 +1,5 @@
-import { X } from 'lucide-react';
+import { useState } from 'react';
+import { X, Loader2 } from 'lucide-react';
 import { TelegramFile } from '../../types';
 
 interface MediaPlayerProps {
@@ -10,6 +11,7 @@ interface MediaPlayerProps {
 export function MediaPlayer({ file, onClose, activeFolderId }: MediaPlayerProps) {
     const folderIdParam = activeFolderId !== null ? activeFolderId.toString() : 'home';
     const streamUrl = `http://localhost:14200/stream/${folderIdParam}/${file.id}`;
+    const [isBuffering, setIsBuffering] = useState(true);
 
     const isVideo = ['mp4', 'webm', 'ogg', 'mov', 'mkv', 'avi'].some(ext => file.name.toLowerCase().endsWith(ext));
     const isAudio = ['mp3', 'wav', 'aac', 'flac', 'm4a', 'opus'].some(ext => file.name.toLowerCase().endsWith(ext));
@@ -24,20 +26,34 @@ export function MediaPlayer({ file, onClose, activeFolderId }: MediaPlayerProps)
                     <X className="w-6 h-6" />
                 </button>
 
-                <div className="w-full aspect-video bg-black rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 flex items-center justify-center">
+                <div className="w-full aspect-video bg-black rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 flex items-center justify-center relative">
                     {isVideo ? (
-                        <video
-                            src={streamUrl}
-                            controls
-                            autoPlay
-                            className="w-full h-full object-contain"
-                        />
+                        <>
+                            {isBuffering && (
+                                <div className="absolute inset-0 flex items-center justify-center z-10 bg-black/50">
+                                    <div className="flex flex-col items-center gap-3">
+                                        <Loader2 className="w-10 h-10 text-white animate-spin" />
+                                        <span className="text-sm text-white/70">Buffering...</span>
+                                    </div>
+                                </div>
+                            )}
+                            <video
+                                src={streamUrl}
+                                controls
+                                autoPlay
+                                preload="auto"
+                                className="w-full h-full object-contain"
+                                onWaiting={() => setIsBuffering(true)}
+                                onPlaying={() => setIsBuffering(false)}
+                                onCanPlay={() => setIsBuffering(false)}
+                            />
+                        </>
                     ) : isAudio ? (
                         <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-telegram-primary/20 to-black">
                             <div className="w-32 h-32 rounded-full bg-telegram-surface flex items-center justify-center mb-8 shadow-xl animate-pulse-slow">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12 text-telegram-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
                             </div>
-                            <audio src={streamUrl} controls autoPlay className="w-full max-w-md" />
+                            <audio src={streamUrl} controls autoPlay preload="auto" className="w-full max-w-md" />
                         </div>
                     ) : (
                         <div className="text-white">Unsupported media type</div>
