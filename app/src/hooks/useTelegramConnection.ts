@@ -41,6 +41,16 @@ export function useTelegramConnection(onLogoutParent: () => void) {
                 const apiIdStr = await _store.get<string>('api_id');
                 if (apiIdStr) {
                     const apiId = parseInt(apiIdStr as string);
+
+                    // Load and set proxy before connecting (critical for China VPN users)
+                    try {
+                        const configStore = await Store.load('config.json');
+                        const savedProxy = await configStore.get<string>('proxy_url');
+                        if (savedProxy) {
+                            await invoke('cmd_set_proxy', { proxyUrl: savedProxy });
+                        }
+                    } catch { /* proxy config optional */ }
+
                     // Retry connection up to 3 times for VPN resilience
                     let connected = false;
                     for (let attempt = 1; attempt <= 3; attempt++) {

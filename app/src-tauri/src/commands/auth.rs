@@ -3,7 +3,7 @@ use tauri::Manager;
 use grammers_client::Client;
 use std::sync::Arc;
 use std::sync::atomic::Ordering;
-use grammers_mtsender::SenderPool;
+use grammers_mtsender::{SenderPool, ConnectionParams};
 use grammers_session::storages::SqliteSession;
 use tokio::sync::oneshot;
 use tokio::time::Duration;
@@ -72,7 +72,18 @@ pub async fn ensure_client_initialized(
     };
         
     let session = Arc::new(session);
-    let pool = SenderPool::new(session, api_id);
+
+    // Build connection params with optional SOCKS5 proxy for China VPN users
+    let proxy = state.proxy_url.lock().await.clone();
+    let connection_params = ConnectionParams {
+        proxy_url: proxy.clone(),
+        ..Default::default()
+    };
+    if let Some(ref p) = proxy {
+        log::info!("Using SOCKS5 proxy: {}", p);
+    }
+
+    let pool = SenderPool::with_configuration(session, api_id, connection_params);
     let client = Client::new(&pool);
     
     // Create shutdown channel for this runner
@@ -290,6 +301,21 @@ pub async fn cmd_auth_sign_in(
            Err(format!("Sign in failed: {}", e))
         }
     }
+}
+
+#[tauri::command]
+pub async fn cmd_set_proxy(
+    proxy_url: Option<String>,
+    state: State<'_, TelegramState>,
+) -> Result<bool, String> {
+    let cleaned = proxy_url.filter(|s| !s.trim().is_empty());
+    if let Some(ref url) = cleaned {
+        log::info!("Proxy configured: {}", url);
+    } else {
+        log::info!("Proxy cleared (direct connection)");
+    }
+    *state.proxy_url.lock().await = cleaned;
+    Ok(true)
 }
 
 #[tauri::command]

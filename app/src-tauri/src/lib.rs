@@ -33,6 +33,7 @@ pub fn run() {
                 runner_shutdown: Arc::new(Mutex::new(None)),
                 runner_count: Arc::new(std::sync::atomic::AtomicU32::new(0)),
                 peer_cache: Arc::new(Mutex::new(HashMap::new())),
+                proxy_url: Arc::new(Mutex::new(None)),
             });
             app.manage(bandwidth::BandwidthManager::new(app.handle()));
             
@@ -71,6 +72,7 @@ pub fn run() {
             commands::cmd_is_network_available,
             commands::cmd_clean_cache,
             commands::cmd_get_thumbnail,
+            commands::cmd_set_proxy,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

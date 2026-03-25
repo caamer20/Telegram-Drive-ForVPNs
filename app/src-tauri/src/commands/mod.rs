@@ -21,6 +21,9 @@ pub struct TelegramState {
     pub runner_count: Arc<std::sync::atomic::AtomicU32>,
     /// Cache resolved peers to avoid iterating all dialogs on every operation
     pub peer_cache: Arc<Mutex<HashMap<i64, Peer>>>,
+    /// Optional SOCKS5 proxy URL for routing connections through a VPN tunnel
+    /// Format: socks5://[user:pass@]host:port
+    pub proxy_url: Arc<Mutex<Option<String>>>,
 }
 
 pub mod auth;

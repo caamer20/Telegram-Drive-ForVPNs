@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { motion, AnimatePresence } from "framer-motion";
-import { Phone, Key, Lock, ArrowRight, Settings, ShieldCheck, Sun, Moon, HelpCircle, ExternalLink, X } from "lucide-react";
+import { Phone, Key, Lock, ArrowRight, Settings, ShieldCheck, Sun, Moon, HelpCircle, ExternalLink, X, Globe } from "lucide-react";
 import { load } from '@tauri-apps/plugin-store';
 import { useTheme } from '../context/ThemeContext';
 
@@ -53,6 +53,7 @@ export function AuthWizard({ onLogin }: { onLogin: () => void }) {
     const [phone, setPhone] = useState("");
     const [code, setCode] = useState("");
     const [password, setPassword] = useState("");
+    const [proxyUrl, setProxyUrl] = useState("");
     const [error, setError] = useState<string | null>(null);
     const [floodWait, setFloodWait] = useState<number | null>(null);
     const [showHelp, setShowHelp] = useState(false);
@@ -75,10 +76,14 @@ export function AuthWizard({ onLogin }: { onLogin: () => void }) {
                 const store = await load('config.json');
                 const savedId = await store.get<string>('api_id');
                 const savedHash = await store.get<string>('api_hash');
+                const savedProxy = await store.get<string>('proxy_url');
 
                 if (savedId && savedHash) {
                     setApiId(savedId);
                     setApiHash(savedHash);
+                }
+                if (savedProxy) {
+                    setProxyUrl(savedProxy);
                 }
             } catch {
                 // config not found, starting fresh
@@ -92,6 +97,7 @@ export function AuthWizard({ onLogin }: { onLogin: () => void }) {
             const store = await load('config.json');
             await store.set('api_id', apiId);
             await store.set('api_hash', apiHash);
+            await store.set('proxy_url', proxyUrl || '');
             await store.save();
         } catch {
             // store write failure, non-critical
@@ -116,6 +122,9 @@ export function AuthWizard({ onLogin }: { onLogin: () => void }) {
         try {
             const idInt = parseInt(apiId, 10);
             if (isNaN(idInt)) throw new Error("API ID must be a number");
+
+            // Set proxy before connecting (critical for China VPN users)
+            await invoke("cmd_set_proxy", { proxyUrl: proxyUrl || null });
 
             await invoke("cmd_auth_request_code", {
                 phone,
@@ -260,6 +269,21 @@ export function AuthWizard({ onLogin }: { onLogin: () => void }) {
                                                     className="w-full glass-input rounded-xl pl-12 pr-4 py-3.5 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition-all font-mono text-sm"
                                                 />
                                             </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">SOCKS5 Proxy <span className="text-gray-600 normal-case font-normal">(optional)</span></label>
+                                            <div className="relative">
+                                                <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 auth-form-icon" />
+                                                <input
+                                                    type="text"
+                                                    value={proxyUrl}
+                                                    onChange={(e) => setProxyUrl(e.target.value)}
+                                                    placeholder="socks5://127.0.0.1:1080"
+                                                    className="w-full glass-input rounded-xl pl-12 pr-4 py-3.5 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition-all font-mono text-sm"
+                                                />
+                                            </div>
+                                            <p className="text-[10px] text-gray-500 mt-1.5 ml-1">Required for VPN users in China. Enter your VPN's local SOCKS5 address.</p>
                                         </div>
                                     </div>
 
