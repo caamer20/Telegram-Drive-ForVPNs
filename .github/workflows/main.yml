@@ -1,0 +1,78 @@
+name: "Publish"
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish-tauri:
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Windows (Standard x64)
+          - platform: windows-latest
+            args: ''
+          
+          # Linux (Ubuntu x64)
+          - platform: ubuntu-22.04
+            args: ''
+            
+          # macOS (Apple Silicon / ARM64)
+          # macos-latest is already ARM64 - no explicit target needed
+          - platform: macos-latest
+            args: ''
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          # Targets: Linux, Windows, and Mac ARM
+          targets: aarch64-apple-darwin, x86_64-unknown-linux-gnu, x86_64-pc-windows-msvc
+
+      - name: install dependencies (ubuntu only)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libssl-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev
+
+      - name: install frontend dependencies
+        working-directory: app
+        run: npm install
+
+      - name: build the app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Apple signing disabled - produces unsigned app
+          # To enable signing, add APPLE_CERTIFICATE, APPLE_CERTIFICATE_PASSWORD, 
+          # and APPLE_SIGNING_IDENTITY secrets to your repository
+        with:
+          tagName: app-v__VERSION__ 
+          releaseName: 'App v__VERSION__'
+          releaseBody: 'See the assets to download this version and install.'
+          releaseDraft: true
+          prerelease: false
+          projectPath: ./app
+          # This pulls the 'args' from the matrix above (e.g., forcing ARM on Mac)
+          args: ${{ matrix.args }}

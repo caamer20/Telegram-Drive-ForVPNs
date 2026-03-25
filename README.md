@@ -1,0 +1,115 @@
+# Telegram Drive (Optimized for China VPNs)
+
+**Telegram Drive** is an open-source, cross-platform desktop application that turns your Telegram account into an unlimited, secure cloud storage drive. Built with **Tauri**, **Rust**, and **React**.
+
+This specific fork has been **heavily optimized for users in China accessing the Telegram API through a VPN**. It includes custom network polling, automatic multi-DC fallback, exponential backoff retries for high-latency connections, and deep API optimizations to minimize round trips.
+
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20MacOS%20%7C%20Linux-blue)
+
+
+![Auth Screen](screenshots/AuthScreen.png)
+
+##  What is Telegram Drive?
+
+Telegram Drive leverages the Telegram API to allow you to upload, organize, and manage files directly on Telegram's servers. It treats your "Saved Messages" and created Channels as folders, giving you a familiar file explorer interface for your Telegram cloud.
+
+###  Key Features
+
+*   **Unlimited Cloud Storage**: Utilizing Telegram's generous cloud infrastructure.
+*   **High Performance Grid**: Virtual scrolling handles folders with thousands of files instantly.
+*   **Auto-Updates**: Seamless updates for Windows, macOS, and Linux.
+*   **Media Streaming**: Stream video and audio files directly without downloading.
+*   **Drag & Drop**: Intuitive drag-and-drop upload and file management.
+*   **Thumbnail Previews**: Inline thumbnails for images and media files.
+*   **Folder Management**: Create "Folders" (private Telegram Channels) to organize content.
+*   **Privacy Focused**: API keys and data stay local. No third-party servers.
+*   **Cross-Platform**: Native apps for macOS (Intel/ARM), Windows, and Linux.
+
+### 🇨🇳 China VPN Optimizations
+
+This version includes specific backend enhancements to handle the high latency, packet loss, and connection instability common when routing Telegram traffic through VPNs from China:
+
+*   **Multi-DC Network Checks**: Attempts connections across 5 different Telegram Data Centers (DC1-DC5) to find the most stable route, rather than relying on a single hardcoded IP.
+*   **Latency-Tolerant Timeouts**: TCP connection timeouts increased from 2s to 8s.
+*   **Exponential Backoff & Retries**: Uploads and downloads are wrapped in a custom retry handler that automatically recovers from broken pipes and EOF errors typical of unstable tunnels.
+*   **Flood Wait Handling**: Automatically detects and sleeps during Telegram API `FLOOD_WAIT` rate limits before transparently resuming operations.
+*   **O(1) Peer Resolution**: Implements an in-memory `HashMap` cache for Telegram peers, eliminating the need to iterate through hundreds of dialogs (saving 30+ seconds of API round trips on each file operation).
+*   **Direct Message Fetching**: Replaced O(n) message iteration with targeted `get_messages_by_id` calls for instant file downloads and thumbnail generation.
+*   **Adaptive Polling**: Frontend network polling intelligently scales from 30s to 45s to reduce unnecessary VPN traffic while remaining responsive.
+*   **Resilient Authentication**: Initial connections and `get_me` pings include retry loops to prevent accidental logouts on temporary network drops.
+
+##  Screenshots
+
+| Dashboard | File Preview |
+|-----------|--------------|
+| ![Dashboard](screenshots/DashboardWithFiles.png) | ![Preview](screenshots/ImagePreview.png) |
+
+| Grid View | Authentication |
+|-----------|----------------|
+| ![Dark Mode](screenshots/DarkModeGrid.png) | ![Login](screenshots/LoginScreen.png) |
+
+| Audio Playback | Video Playback |
+|----------------|----------------|
+| ![Audio Playback](screenshots/AudioPlayback.png) | ![Video Playback](screenshots/VideoPlayback.png) |
+
+| Auth Code Screen | Upload Example |
+|------------------|-------------|
+| ![Auth Code Screen](screenshots/AuthCodeScreen.png) | ![Upload Example](screenshots/UploadExample.png) |
+
+| Folder Creation | Folder List View |
+|-----------------|------------------|
+| ![Folder Creation](screenshots/FolderCreation.png) | ![Folder List View](screenshots/FolderListView.png) |
+
+##  Tech Stack
+
+*   **Frontend**: React, TypeScript, TailwindCSS, Framer Motion
+*   **Backend**: Rust (Tauri), Grammers (Telegram Client)
+*   **Build Tool**: Vite
+
+
+##  Getting Started
+
+### Prerequisites
+*   Node.js (v18+)
+*   Rust (latest stable)
+*   A Telegram Account
+*   API ID and Hash from [my.telegram.org](https://my.telegram.org)
+
+### Installation
+
+1.  **Clone the repository**
+    ```bash
+    git clone https://github.com/caamer20/Telegram-Drive.git
+    cd Telegram-Drive
+    ```
+
+2.  **Install Dependencies**
+    ```bash
+    cd app
+    npm install
+    ```
+
+3.  **Run in Development Mode**
+    ```bash
+    npm run tauri dev
+    ```
+
+4.  **Build/Compile**
+    ```bash
+    npm run tauri build
+    ```
+
+##  Open Source & License
+
+This project is **Free and Open Source Software**. You are free to use, modify, and distribute it.
+
+Licensed under the **MIT License**.
+
+---
+*Disclaimer: This application is not affiliated with Telegram FZ-LLC. Use responsibly and in accordance with Telegram's Terms of Service.*
+
+
+<a href="https://www.paypal.me/Caamer20">
+  <img src="https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png" alt="Donate with PayPal" width="200" />
+</a>
