@@ -80,8 +80,8 @@ This version includes specific backend enhancements to handle the high latency, 
 
 1.  **Clone the repository**
     ```bash
-    git clone https://github.com/caamer20/Telegram-Drive.git
-    cd Telegram-Drive
+    git clone https://github.com/caamer20/Telegram-Drive-ForVPNs
+    cd Telegram-Drive-ForVPNs
     ```
 
 2.  **Install Dependencies**
