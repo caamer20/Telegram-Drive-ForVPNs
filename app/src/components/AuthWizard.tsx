@@ -106,10 +106,35 @@ export function AuthWizard({ onLogin }: { onLogin: () => void }) {
 
     const handleSetupSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!apiId || !apiHash) {
+        
+        const cleanedId = apiId.trim();
+        const cleanedHash = apiHash.trim();
+
+        if (cleanedId !== apiId || cleanedHash !== apiHash) {
+            setApiId(cleanedId);
+            setApiHash(cleanedHash);
+        }
+
+        if (!cleanedId || !cleanedHash) {
             setError("Both API ID and Hash are required.");
             return;
         }
+
+        if (/\s/.test(cleanedId) || /\s/.test(cleanedHash)) {
+            setError("API ID and API Hash must not contain spaces.");
+            return;
+        }
+
+        if (!/^\d+$/.test(cleanedId)) {
+            setError("API ID must contain only numbers.");
+            return;
+        }
+        
+        if (!/^[a-fA-F0-9]+$/.test(cleanedHash)) {
+            setError("API Hash should contain only letters and numbers (hex).");
+            return;
+        }
+
         setError(null);
         await saveCredentials();
         setStep("phone");
