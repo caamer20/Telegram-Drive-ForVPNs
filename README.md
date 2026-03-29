@@ -51,7 +51,7 @@ This version includes specific backend enhancements to handle the high latency, 
 
 | Audio Playback | Video Playback |
 |----------------|----------------|
-| ![Audio Playback]([screenshots/AudioPlayback.png](https://github.com/caamer20/Telegram-Drive/blob/main/screenshots/AudioPlayback.png?raw=true)) | ![Video Playback](https://github.com/caamer20/Telegram-Drive/blob/main/screenshots/VideoPlayback.png?raw=true) |
+| ![Audio Playback](https://github.com/caamer20/Telegram-Drive/blob/main/screenshots/AudioPlayback.png?raw=true) | ![Video Playback](https://github.com/caamer20/Telegram-Drive/blob/main/screenshots/VideoPlayback.png?raw=true) |
 
 | Auth Code Screen | Upload Example |
 |------------------|-------------|
