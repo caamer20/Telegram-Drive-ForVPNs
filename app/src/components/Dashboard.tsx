@@ -96,7 +96,13 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
     } = useFileOperations(activeFolderId, selectedIds, setSelectedIds, displayedFiles);
 
     const { uploadQueue, setUploadQueue, handleManualUpload, isDragging } = useFileUpload(activeFolderId, store);
-    const { downloadQueue, clearFinished: clearDownloads } = useFileDownload(store);
+    const { downloadQueue, clearFinished: clearDownloads, cancelAll: cancelAllDownloads } = useFileDownload(store);
+
+    const handleCancelAllUploads = useCallback(() => {
+        setUploadQueue((q: typeof uploadQueue) => q.map(i =>
+            i.status === 'pending' || i.status === 'uploading' ? { ...i, status: 'error' as const } : i
+        ));
+    }, [setUploadQueue]);
 
 
     const handleSelectAll = useCallback(() => {
@@ -136,12 +142,36 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
         }
     }, [selectedIds, displayedFiles, setActiveFolderId]);
 
+    const handleArrowDown = useCallback(() => {
+        if (displayedFiles.length === 0) return;
+        if (selectedIds.length === 0) {
+            setSelectedIds([displayedFiles[0].id]);
+            return;
+        }
+        const currentIdx = displayedFiles.findIndex(f => f.id === selectedIds[selectedIds.length - 1]);
+        const nextIdx = Math.min(currentIdx + 1, displayedFiles.length - 1);
+        setSelectedIds([displayedFiles[nextIdx].id]);
+    }, [selectedIds, displayedFiles]);
+
+    const handleArrowUp = useCallback(() => {
+        if (displayedFiles.length === 0) return;
+        if (selectedIds.length === 0) {
+            setSelectedIds([displayedFiles[0].id]);
+            return;
+        }
+        const currentIdx = displayedFiles.findIndex(f => f.id === selectedIds[0]);
+        const prevIdx = Math.max(currentIdx - 1, 0);
+        setSelectedIds([displayedFiles[prevIdx].id]);
+    }, [selectedIds, displayedFiles]);
+
     useKeyboardShortcuts({
         onSelectAll: handleSelectAll,
         onDelete: handleKeyboardDelete,
         onEscape: handleEscape,
         onSearch: handleFocusSearch,
         onEnter: handleEnter,
+        onArrowDown: handleArrowDown,
+        onArrowUp: handleArrowUp,
         enabled: !previewFile && !showMoveModal // Disable when modals are open
     });
 
@@ -344,10 +374,12 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
             <UploadQueue
                 items={uploadQueue}
                 onClearFinished={() => setUploadQueue(q => q.filter(i => i.status !== 'success' && i.status !== 'error'))}
+                onCancelAll={handleCancelAllUploads}
             />
             <DownloadQueue
                 items={downloadQueue}
                 onClearFinished={clearDownloads}
+                onCancelAll={cancelAllDownloads}
             />
         </div>
     );

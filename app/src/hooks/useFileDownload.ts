@@ -109,10 +109,19 @@ export function useFileDownload(store: Store | null) {
         setDownloadQueue(q => q.filter(i => i.status !== 'success'));
     };
 
+    const cancelAll = () => {
+        setDownloadQueue(q => q.map(i =>
+            i.status === 'pending' || i.status === 'downloading'
+                ? { ...i, status: 'error' as const, error: 'Cancelled' }
+                : i
+        ));
+    };
+
     return {
         downloadQueue,
         queueDownload,
         queueBulkDownload,
-        clearFinished
+        clearFinished,
+        cancelAll
     };
 }

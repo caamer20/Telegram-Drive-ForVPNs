@@ -6,6 +6,8 @@ interface UseKeyboardShortcutsProps {
     onEscape: () => void;
     onSearch: () => void;
     onEnter?: () => void;
+    onArrowUp?: () => void;
+    onArrowDown?: () => void;
     enabled?: boolean;
 }
 
@@ -15,6 +17,8 @@ export function useKeyboardShortcuts({
     onEscape,
     onSearch,
     onEnter,
+    onArrowUp,
+    onArrowDown,
     enabled = true
 }: UseKeyboardShortcutsProps) {
 
@@ -61,13 +65,28 @@ export function useKeyboardShortcuts({
             onEscape();
             return;
         }
+
         // Enter - Open / Preview
         if (e.key === 'Enter') {
             e.preventDefault();
             onEnter?.();
             return;
         }
-    }, [enabled, onSelectAll, onDelete, onEscape, onSearch, onEnter]);
+
+        // Arrow Up - move selection up
+        if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            onArrowUp?.();
+            return;
+        }
+
+        // Arrow Down - move selection down
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            onArrowDown?.();
+            return;
+        }
+    }, [enabled, onSelectAll, onDelete, onEscape, onSearch, onEnter, onArrowUp, onArrowDown]);
 
     useEffect(() => {
         window.addEventListener('keydown', handleKeyDown);

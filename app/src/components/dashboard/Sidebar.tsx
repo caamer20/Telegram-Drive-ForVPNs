@@ -38,59 +38,67 @@ export function Sidebar({
 
     return (
         <aside className="w-64 bg-telegram-surface border-r border-telegram-border flex flex-col" onClick={e => e.stopPropagation()}>
-            <div className="p-4 flex items-center gap-2">
+            <div className="p-4 flex items-center gap-2 shrink-0">
                 <img src="/logo.svg" className="w-8 h-8 drop-shadow-lg" alt="Logo" />
                 <span className="font-bold text-lg text-telegram-text tracking-tight">Telegram Drive</span>
             </div>
 
-            <nav className="flex-1 px-2 py-4 space-y-1">
-                <SidebarItem
-                    icon={HardDrive}
-                    label="Saved Messages"
-                    active={activeFolderId === null}
-                    onClick={() => setActiveFolderId(null)}
-                    onDrop={(e: React.DragEvent) => onDrop(e, null)}
-                    folderId={null}
-                />
-                {folders.map(folder => (
+            {/* Scrollable folder list — takes remaining space, button stays below */}
+            <div className="flex-1 flex flex-col min-h-0">
+                <nav className="flex-1 overflow-y-auto px-2 py-2 space-y-1 min-h-0">
                     <SidebarItem
-                        key={folder.id}
-                        icon={Folder}
-                        label={folder.name}
-                        active={activeFolderId === folder.id}
-                        onClick={() => setActiveFolderId(folder.id)}
-                        onDrop={(e: React.DragEvent) => onDrop(e, folder.id)}
-                        onDelete={() => onDelete(folder.id, folder.name)}
-                        folderId={folder.id}
+                        icon={HardDrive}
+                        label="Saved Messages"
+                        active={activeFolderId === null}
+                        onClick={() => setActiveFolderId(null)}
+                        onDrop={(e: React.DragEvent) => onDrop(e, null)}
+                        folderId={null}
                     />
-                ))}
-
-
-                {showNewFolderInput ? (
-                    <div className="px-3 py-2">
-                        <input
-                            autoFocus
-                            type="text"
-                            className="w-full bg-white/10 rounded px-2 py-1 text-sm text-white focus:outline-none focus:ring-1 focus:ring-telegram-primary"
-                            placeholder="Folder Name"
-                            value={newFolderName}
-                            onChange={e => setNewFolderName(e.target.value)}
-                            onKeyDown={e => e.key === 'Enter' && submitCreate()}
-                            onBlur={() => !newFolderName && setShowNewFolderInput(false)}
+                    {folders.map(folder => (
+                        <SidebarItem
+                            key={folder.id}
+                            icon={Folder}
+                            label={folder.name}
+                            active={activeFolderId === folder.id}
+                            onClick={() => setActiveFolderId(folder.id)}
+                            onDrop={(e: React.DragEvent) => onDrop(e, folder.id)}
+                            onDelete={() => onDelete(folder.id, folder.name)}
+                            folderId={folder.id}
                         />
-                    </div>
-                ) : (
-                    <button
-                        onClick={() => setShowNewFolderInput(true)}
-                        className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-telegram-subtext hover:bg-telegram-hover hover:text-telegram-text transition-colors border border-dashed border-telegram-border mt-2"
-                    >
-                        <Plus className="w-4 h-4" />
-                        Create Folder
-                    </button>
-                )}
-            </nav>
+                    ))}
+                </nav>
 
-            <div className="p-4 border-t border-telegram-border">
+                {/* Sticky Create Folder button — always visible outside scroll area */}
+                <div className="px-2 py-2 shrink-0 border-t border-telegram-border/50">
+                    {showNewFolderInput ? (
+                        <div className="px-1 py-1">
+                            <input
+                                autoFocus
+                                type="text"
+                                className="w-full bg-white/10 rounded px-2 py-1 text-sm text-white focus:outline-none focus:ring-1 focus:ring-telegram-primary"
+                                placeholder="Folder Name"
+                                value={newFolderName}
+                                onChange={e => setNewFolderName(e.target.value)}
+                                onKeyDown={e => {
+                                    if (e.key === 'Enter') submitCreate();
+                                    if (e.key === 'Escape') setShowNewFolderInput(false);
+                                }}
+                                onBlur={() => !newFolderName && setShowNewFolderInput(false)}
+                            />
+                        </div>
+                    ) : (
+                        <button
+                            onClick={() => setShowNewFolderInput(true)}
+                            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-telegram-subtext hover:bg-telegram-hover hover:text-telegram-text transition-colors border border-dashed border-telegram-border"
+                        >
+                            <Plus className="w-4 h-4" />
+                            Create Folder
+                        </button>
+                    )}
+                </div>
+            </div>
+
+            <div className="p-4 border-t border-telegram-border shrink-0">
                 <div className="flex items-center gap-2 text-telegram-subtext text-xs">
                     <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
                     <span>{isConnected ? 'Connected to Telegram' : 'Disconnected from Telegram'}</span>

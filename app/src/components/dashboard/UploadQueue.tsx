@@ -1,18 +1,34 @@
 import { QueueItem } from "../../types";
+import { XCircle } from "lucide-react";
 
 interface UploadQueueProps {
     items: QueueItem[];
     onClearFinished: () => void;
+    onCancelAll: () => void;
 }
 
-export function UploadQueue({ items, onClearFinished }: UploadQueueProps) {
+export function UploadQueue({ items, onClearFinished, onCancelAll }: UploadQueueProps) {
     if (items.length === 0) return null;
+
+    const activeCount = items.filter(i => i.status === 'pending' || i.status === 'uploading').length;
 
     return (
         <div className="fixed bottom-4 right-4 w-80 bg-telegram-surface border border-telegram-border rounded-xl shadow-2xl overflow-hidden z-[100]">
             <div className="p-3 border-b border-telegram-border bg-telegram-hover flex justify-between items-center">
                 <h4 className="text-sm font-medium text-telegram-text">Uploads</h4>
-                <button onClick={onClearFinished} className="text-xs text-telegram-primary hover:text-telegram-text transition-colors">Clear Finished</button>
+                <div className="flex items-center gap-2">
+                    {activeCount > 0 && (
+                        <button
+                            onClick={onCancelAll}
+                            className="text-xs text-red-400 hover:text-red-300 flex items-center gap-1 transition-colors"
+                            title="Cancel all active uploads"
+                        >
+                            <XCircle className="w-3.5 h-3.5" />
+                            Cancel All
+                        </button>
+                    )}
+                    <button onClick={onClearFinished} className="text-xs text-telegram-primary hover:text-telegram-text transition-colors">Clear Finished</button>
+                </div>
             </div>
             <div className="max-h-60 overflow-y-auto p-2 space-y-2">
                 {items.map(item => (
