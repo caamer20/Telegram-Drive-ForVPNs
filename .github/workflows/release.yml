@@ -29,7 +29,7 @@ jobs:
               repo: context.repo.repo,
               tag_name: `v${{ steps.get_version.outputs.VERSION }}`,
               name: `Telegram Drive v${{ steps.get_version.outputs.VERSION }}`,
-              body: `### What's New\n- Sidebar folder list now scrolls — no longer overflows when you have many folders\n- \"Create Folder\" button is always visible in a sticky strip above the footer\n- Arrow key navigation (↑ / ↓) through the file list\n- Cancel All button for active uploads and downloads\n- Downloads panel moved to the bottom-right corner\n- \"Download All\" tooltip on the folder download button\n- External links now open in your default browser instead of inside the app\n- API ID and API Hash fields now warn if you accidentally include leading/trailing spaces\n\nSee the assets below to download and install.`,
+              body: `### What's New\n- **Progressive File Loading** — Files load in pages (50 first, then 200 at a time) for dramatically faster UI on VPN connections\n- **PDF Viewer** — Full in-app PDF viewer with zoom, rotation, thumbnails, and keyboard shortcuts\n- **Security Hardening** — Strict Content Security Policy replacing permissive defaults\n- **Centralized File Extensions** — Unified extension registry with O(1) lookups\n- **Smarter Refreshes** — File ops use progressive-loader refetch instead of full cache invalidation\n\nSee the assets below to download and install.`,
               draft: true,
               prerelease: false
             });
@@ -70,7 +70,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
