@@ -96,7 +96,7 @@ jobs:
 
       - name: Install frontend dependencies
         working-directory: app
-        run: npm install
+        run: npm install --no-package-lock
 
       - name: Build the app
         uses: tauri-apps/tauri-action@v0
