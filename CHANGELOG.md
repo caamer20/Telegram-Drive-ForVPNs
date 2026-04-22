@@ -1,24 +1,40 @@
 # Changelog
 
+## [1.1.2] - 2026-04-22
+
+### Branding Updates
+- Updated application name and title to "Telegram Drive for VPNs".
+- Removed emojis from changelog and release notes.
+
+---
+
+## [1.1.1] - 2026-04-22
+
+### CI/CD Fixes
+- Restored working GitHub Actions workflows.
+- Pinned exact versions for Tauri plugins to prevent drift.
+
+---
+
 ## [1.1.0] - 2026-04-22
 
-### ✨ New Features
+### New Features
 
 - **Progressive File Loading** — Files now load in pages (50 first, then 200 at a time in the background) instead of all-at-once, dramatically improving responsiveness for VPN users with high-latency connections.
 - **PDF Viewer** — Full in-app PDF viewer with page navigation, zoom (fit-width / fit-page / manual), rotation, thumbnail sidebar, keyboard shortcuts, and download fallback for corrupted files.
 - **Paginated Backend API** — `cmd_get_files` now accepts `offset` and `limit` parameters and returns a `FilePage` struct with `has_more` / `next_offset` for cursor-based pagination.
 
-### 🔒 Security
+### Security
 
 - **Content Security Policy** — Replaced the permissive `csp: null` with a strict per-directive CSP (default-src, script-src, style-src, connect-src, img-src, worker-src, object-src, base-uri, form-action).
 
-### 🛠 Improvements
+### Improvements
 
 - **Centralized File Extensions** — Extracted all file-extension lists into `utils/fileExtensions.ts` with O(1) Set lookups, eliminating duplicated inline arrays across `FileTypeIcon`, `PreviewModal`, `ContextMenu`, and `FileCard`.
 - **Smarter Refreshes** — File operations (delete, bulk delete, move, upload) now call the progressive-loader's `refetch()` instead of blowing away the React Query cache, avoiding full re-fetches.
 - **Auth Branding** — Login screen title updated to "Telegram Drive for VPNs"; auth gradient changed to green tones.
 
-### 🧹 Cleanup
+### Cleanup
 
 - Deleted stale `commands.rs.bak` and empty `commands/menu.rs`.
 - Removed dead video-preview branch from `PreviewModal` (videos already handled by `MediaPlayer`).

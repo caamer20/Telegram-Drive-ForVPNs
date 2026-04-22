@@ -8,7 +8,7 @@ This specific fork has been **heavily optimized for users in China accessing the
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20MacOS%20%7C%20Linux-blue)
 
 
-![Auth Screen](https://github.com/caamer20/Telegram-Drive/raw/main/screenshots/AuthScreen.png)
+![Auth Screen](TelegramDriveForVPNS.png)
 
 ##  What is Telegram Drive?
 
@@ -55,7 +55,7 @@ This version includes specific backend enhancements to handle the high latency, 
 
 | Auth Code Screen | Upload Example |
 |------------------|-------------|
-| ![Auth Code Screen](https://github.com/caamer20/Telegram-Drive/blob/main/screenshots/AuthCodeScreen.png?raw=true) | ![Upload Example](https://github.com/caamer20/Telegram-Drive/blob/main/screenshots/UploadExample.png?raw=true) |
+| ![Auth Code Screen](TelegramDriveForVPNs.png) | ![Upload Example](https://github.com/caamer20/Telegram-Drive/blob/main/screenshots/UploadExample.png?raw=true) |
 
 | Folder Creation | Folder List View |
 |-----------------|------------------|
