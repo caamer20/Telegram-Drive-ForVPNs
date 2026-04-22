@@ -8,8 +8,8 @@
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDBBRkI4QUZDNjZEMzZCRTIKUldUaWE5Tm0vSXI3Q3JrRDBtY2lZYUtGL3RTR2JuUTNYSCswVjNaVURXa1FSRWRPMzNPZk92YS8K"
     }
   },
-  "productName": "Telegram Drive",
-  "version": "1.1.0",
+  "productName": "Telegram Drive for VPNs",
+  "version": "1.1.1",
   "identifier": "com.cameronamer.telegramdrive",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -20,7 +20,7 @@
   "app": {
     "windows": [
       {
-        "title": "Telegram Drive",
+        "title": "Telegram Drive for VPNs",
         "width": 1200,
         "height": 800,
         "minWidth": 1000,
