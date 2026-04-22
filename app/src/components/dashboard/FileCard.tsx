@@ -4,6 +4,7 @@ import { Folder, Eye, Trash2 } from 'lucide-react';
 import { invoke } from '@tauri-apps/api/core';
 import { TelegramFile } from '../../types';
 import { FileTypeIcon } from '../FileTypeIcon';
+import { COMMON_EXTENSION_SETS } from '../../utils/fileExtensions';
 
 interface FileCardProps {
     file: TelegramFile;
@@ -23,7 +24,7 @@ interface FileCardProps {
 // Check if file is an image type that can have a thumbnail
 function isImageFile(filename: string): boolean {
     const ext = filename.split('.').pop()?.toLowerCase() || '';
-    return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(ext);
+    return COMMON_EXTENSION_SETS.IMAGES.has(ext);
 }
 
 export function FileCard({ file, onDelete, onDownload, onPreview, isSelected, onClick, onContextMenu, onDrop, onDragStart, onDragEnd, activeFolderId, height }: FileCardProps) {

@@ -28,6 +28,17 @@ pub struct FileMetadata {
     pub icon_type: String, 
 }
 
+/// Paginated response for cmd_get_files.
+/// The frontend requests files in pages (50 first, then 200 at a time)
+/// so the UI can render immediately while more load in the background.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct FilePage {
+    pub files: Vec<FileMetadata>,
+    pub has_more: bool,
+    pub next_offset: i32,
+    pub total_fetched: i32,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct FolderMetadata {
     pub id: i64,

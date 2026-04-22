@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.1.0] - 2026-04-22
+
+### ✨ New Features
+
+- **Progressive File Loading** — Files now load in pages (50 first, then 200 at a time in the background) instead of all-at-once, dramatically improving responsiveness for VPN users with high-latency connections.
+- **PDF Viewer** — Full in-app PDF viewer with page navigation, zoom (fit-width / fit-page / manual), rotation, thumbnail sidebar, keyboard shortcuts, and download fallback for corrupted files.
+- **Paginated Backend API** — `cmd_get_files` now accepts `offset` and `limit` parameters and returns a `FilePage` struct with `has_more` / `next_offset` for cursor-based pagination.
+
+### 🔒 Security
+
+- **Content Security Policy** — Replaced the permissive `csp: null` with a strict per-directive CSP (default-src, script-src, style-src, connect-src, img-src, worker-src, object-src, base-uri, form-action).
+
+### 🛠 Improvements
+
+- **Centralized File Extensions** — Extracted all file-extension lists into `utils/fileExtensions.ts` with O(1) Set lookups, eliminating duplicated inline arrays across `FileTypeIcon`, `PreviewModal`, `ContextMenu`, and `FileCard`.
+- **Smarter Refreshes** — File operations (delete, bulk delete, move, upload) now call the progressive-loader's `refetch()` instead of blowing away the React Query cache, avoiding full re-fetches.
+- **Auth Branding** — Login screen title updated to "Telegram Drive for VPNs"; auth gradient changed to green tones.
+
+### 🧹 Cleanup
+
+- Deleted stale `commands.rs.bak` and empty `commands/menu.rs`.
+- Removed dead video-preview branch from `PreviewModal` (videos already handled by `MediaPlayer`).
+- Deduplicated `FileTypeIcon` by deriving icon/color from the shared extension sets instead of a 40-line inline map.
+
+---
+
 ## [1.0.4] - 2026-02-13
 
 ### Fixes

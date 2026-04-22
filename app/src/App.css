@@ -41,11 +41,11 @@ body,
 
 /* Auth screen gradient background */
 .auth-gradient {
-  background: radial-gradient(120% 120% at 0% 0%, #3ca5ff 0%, #007aff 100%);
+  background: radial-gradient(120% 120% at 0% 0%, #afffcc9a 0%, #56ff948e 100%);
 }
 
 :root.light .auth-gradient {
-  background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+  background: radial-gradient(120% 120% at 0% 0%, #afffcc 0%, #56ff94 100%);
 }
 
 /* Glassmorphism Utilities - Dark */

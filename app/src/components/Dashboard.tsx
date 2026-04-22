@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { invoke } from '@tauri-apps/api/core';
 import { toast } from 'sonner';
 
 import { TelegramFile, BandwidthStats } from '../types';
-import { formatBytes } from '../utils';
+import { COMMON_EXTENSION_SETS } from '../utils/fileExtensions';
 
 // Components
 import { Sidebar } from './dashboard/Sidebar';
@@ -25,9 +25,9 @@ import { useFileOperations } from '../hooks/useFileOperations';
 import { useFileUpload } from '../hooks/useFileUpload';
 import { useFileDownload } from '../hooks/useFileDownload';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
+import { useProgressiveFiles } from '../hooks/useProgressiveFiles';
 
 export function Dashboard({ onLogout }: { onLogout: () => void }) {
-    const queryClient = useQueryClient();
 
 
     const {
@@ -67,15 +67,11 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
     }, [store, viewMode]);
 
 
-    const { data: allFiles = [], isLoading, error } = useQuery({
-        queryKey: ['files', activeFolderId],
-        queryFn: () => invoke<any[]>('cmd_get_files', { folderId: activeFolderId }).then(res => res.map(f => ({
-            ...f,
-            sizeStr: formatBytes(f.size),
-            type: f.icon_type || (f.name.endsWith('/') ? 'folder' : 'file')
-        }))),
-        enabled: !!store,
-    });
+    // Progressive file loading: 50 files immediately, then 200 at a time in background
+    const { files: allFiles, isLoading, isLoadingMore, error: filesError, refetch } = useProgressiveFiles(
+        activeFolderId, !!store
+    );
+    const error = filesError ?? null;
 
     const displayedFiles = searchTerm.length > 2
         ? searchResults
@@ -93,9 +89,9 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
         handleDelete, handleBulkDelete, handleDownload, handleBulkDownload,
         handleBulkMove, handleDownloadFolder, handleGlobalSearch
 
-    } = useFileOperations(activeFolderId, selectedIds, setSelectedIds, displayedFiles);
+    } = useFileOperations(activeFolderId, selectedIds, setSelectedIds, displayedFiles, refetch);
 
-    const { uploadQueue, setUploadQueue, handleManualUpload, isDragging } = useFileUpload(activeFolderId, store);
+    const { uploadQueue, setUploadQueue, handleManualUpload, isDragging } = useFileUpload(activeFolderId, store, refetch);
     const { downloadQueue, clearFinished: clearDownloads, cancelAll: cancelAllDownloads } = useFileDownload(store);
 
     const handleCancelAllUploads = useCallback(() => {
@@ -213,8 +209,8 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
     }
 
     const handlePreview = (file: TelegramFile) => {
-        const isMedia = ['mp4', 'webm', 'ogg', 'mov', 'mkv', 'avi', 'mp3', 'wav', 'aac', 'flac', 'm4a', 'opus']
-            .some(ext => file.name.toLowerCase().endsWith(ext));
+        const ext = file.name.toLowerCase().split('.').pop() || '';
+        const isMedia = COMMON_EXTENSION_SETS.VIDEOS.has(ext) || COMMON_EXTENSION_SETS.AUDIO.has(ext);
 
         if (isMedia) {
             setPlayingFile(file);
@@ -243,7 +239,7 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
                     targetFolderId: targetFolderId
                 });
 
-                queryClient.invalidateQueries({ queryKey: ['files', activeFolderId] });
+                refetch();
 
                 if (selectedIds.includes(fileId)) setSelectedIds([]);
 
@@ -360,6 +356,12 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
                     onDragStart={(fileId) => setInternalDragFileId(fileId)}
                     onDragEnd={() => setTimeout(() => setInternalDragFileId(null), 50)}
                 />
+                {isLoadingMore && (
+                    <div className="px-6 py-2 text-xs text-telegram-subtext flex items-center gap-2">
+                        <div className="w-3 h-3 border-2 border-telegram-primary border-t-transparent rounded-full animate-spin" />
+                        Loading more files… ({allFiles.length} loaded)
+                    </div>
+                )}
             </main>
 
             {previewFile && (

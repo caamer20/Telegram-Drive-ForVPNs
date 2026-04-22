@@ -8,7 +8,8 @@ export function useFileOperations(
     activeFolderId: number | null,
     selectedIds: number[],
     setSelectedIds: (ids: number[]) => void,
-    displayedFiles: TelegramFile[]
+    displayedFiles: TelegramFile[],
+    onRefresh?: () => void,
 ) {
     const queryClient = useQueryClient();
     const { confirm } = useConfirm();
@@ -17,7 +18,7 @@ export function useFileOperations(
         if (!await confirm({ title: "Delete File", message: "Are you sure you want to delete this file?", confirmText: "Delete", variant: 'danger' })) return;
         try {
             await invoke('cmd_delete_file', { messageId: id, folderId: activeFolderId });
-            queryClient.invalidateQueries({ queryKey: ['files', activeFolderId] });
+            if (onRefresh) onRefresh(); else queryClient.invalidateQueries({ queryKey: ['files', activeFolderId] });
             toast.success("File deleted");
         } catch (e) {
             toast.error(`Delete failed: ${e}`);
@@ -39,7 +40,7 @@ export function useFileOperations(
             }
         }
         setSelectedIds([]);
-        queryClient.invalidateQueries({ queryKey: ['files', activeFolderId] });
+        if (onRefresh) onRefresh(); else queryClient.invalidateQueries({ queryKey: ['files', activeFolderId] });
         if (success > 0) toast.success(`Deleted ${success} files.`);
         if (fail > 0) toast.error(`Failed to delete ${fail} files.`);
     }
@@ -92,7 +93,7 @@ export function useFileOperations(
                 targetFolderId: targetFolderId
             });
             toast.success(`Moved ${selectedIds.length} files.`);
-            queryClient.invalidateQueries({ queryKey: ['files', activeFolderId] });
+            if (onRefresh) onRefresh(); else queryClient.invalidateQueries({ queryKey: ['files', activeFolderId] });
             setSelectedIds([]);
             if (onSuccess) onSuccess();
         } catch {

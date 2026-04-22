@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X, Loader2 } from 'lucide-react';
 import { TelegramFile } from '../../types';
+import { COMMON_EXTENSION_SETS } from '../../utils/fileExtensions';
 
 interface MediaPlayerProps {
     file: TelegramFile;
@@ -13,8 +14,9 @@ export function MediaPlayer({ file, onClose, activeFolderId }: MediaPlayerProps)
     const streamUrl = `http://localhost:14200/stream/${folderIdParam}/${file.id}`;
     const [isBuffering, setIsBuffering] = useState(true);
 
-    const isVideo = ['mp4', 'webm', 'ogg', 'mov', 'mkv', 'avi'].some(ext => file.name.toLowerCase().endsWith(ext));
-    const isAudio = ['mp3', 'wav', 'aac', 'flac', 'm4a', 'opus'].some(ext => file.name.toLowerCase().endsWith(ext));
+    const ext = file.name.toLowerCase().split('.').pop() || '';
+    const isVideo = COMMON_EXTENSION_SETS.VIDEOS.has(ext);
+    const isAudio = COMMON_EXTENSION_SETS.AUDIO.has(ext);
 
     return (
         <div className="fixed inset-0 z-[200] bg-black/90 flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in duration-200" onClick={onClose}>

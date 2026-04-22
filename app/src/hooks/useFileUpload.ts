@@ -7,7 +7,7 @@ import { QueueItem } from '../types';
 import { useFileDrop } from './useFileDrop';
 import type { Store } from '@tauri-apps/plugin-store';
 
-export function useFileUpload(activeFolderId: number | null, store: Store | null) {
+export function useFileUpload(activeFolderId: number | null, store: Store | null, onRefresh?: () => void) {
     const queryClient = useQueryClient();
     const [uploadQueue, setUploadQueue] = useState<QueueItem[]>([]);
     const [processing, setProcessing] = useState(false);
@@ -50,7 +50,7 @@ export function useFileUpload(activeFolderId: number | null, store: Store | null
         try {
             await invoke('cmd_upload_file', { path: item.path, folderId: item.folderId });
             setUploadQueue(q => q.map(i => i.id === item.id ? { ...i, status: 'success' } : i));
-            queryClient.invalidateQueries({ queryKey: ['files', item.folderId] });
+            if (onRefresh) onRefresh(); else queryClient.invalidateQueries({ queryKey: ['files', item.folderId] });
         } catch (e) {
             setUploadQueue(q => q.map(i => i.id === item.id ? { ...i, status: 'error', error: String(e) } : i));
             toast.error(`Upload failed for ${item.path.split('/').pop()}: ${e}`);

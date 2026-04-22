@@ -107,7 +107,7 @@ export function AuthWizard({ onLogin }: { onLogin: () => void }) {
 
     const handleSetupSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         const cleanedId = apiId.trim();
         const cleanedHash = apiHash.trim();
 
@@ -130,7 +130,7 @@ export function AuthWizard({ onLogin }: { onLogin: () => void }) {
             setError("API ID must contain only numbers.");
             return;
         }
-        
+
         if (!/^[a-fA-F0-9]+$/.test(cleanedHash)) {
             setError("API Hash should contain only letters and numbers (hex).");
             return;
@@ -227,7 +227,7 @@ export function AuthWizard({ onLogin }: { onLogin: () => void }) {
                     <div className="w-20 h-20 mb-6 mx-auto flex items-center justify-center filter drop-shadow-lg">
                         <img src="/logo.svg" alt="Logo" className="w-full h-full" />
                     </div>
-                    <h1 className="text-2xl font-bold text-white mb-1 tracking-tight">Telegram Drive</h1>
+                    <h1 className="text-2xl font-bold text-white mb-1 tracking-tight">Telegram Drive for VPNs</h1>
                     <p className="text-sm text-white/60 font-medium">Self-Hosted Secure Storage</p>
                 </div>
 
