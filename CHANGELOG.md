@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.3] - 2026-04-27
+
+### Bug Fixes
+
+- **Linux WebKit Renderer Fix** - Set WEBKIT_DISABLE_DMABUF_RENDERER before WebKitGTK initializes to resolve EGL_BAD_ALLOC crashes on Linux distros (particularly Arch Linux) where the AppImage's bundled Mesa conflicts with the host GPU driver stack. Only activates on Linux builds; completely inert on Windows and macOS.
+
+---
+
 ## [1.1.2] - 2026-04-22
 
 ### Branding Updates
