@@ -89,7 +89,8 @@ jobs:
             libssl-dev \
             libgtk-3-dev \
             libayatana-appindicator3-dev \
-            librsvg2-dev
+            librsvg2-dev \
+            libfuse2
 
       - name: Install frontend dependencies
         working-directory: app
@@ -105,6 +106,113 @@ jobs:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           projectPath: ./app
           args: ${{ matrix.args }}
+
+      - name: Patch AppImage for cross-distro EGL compatibility
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          set -euo pipefail
+
+          APPIMAGE_DIR="app/src-tauri/target/release/bundle/appimage"
+          APPIMAGE=$(find "$APPIMAGE_DIR" -maxdepth 1 -name '*.AppImage' -print -quit 2>/dev/null || true)
+
+          if [ -z "$APPIMAGE" ]; then
+            echo "::warning::No .AppImage found in $APPIMAGE_DIR — skipping patch step"
+            exit 0
+          fi
+
+          echo "--- Patching AppImage: $APPIMAGE ---"
+
+          # Download appimagetool
+          wget -q "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage" \
+            -O appimagetool.AppImage
+          chmod +x appimagetool.AppImage
+
+          # Extract the AppImage
+          chmod +x "$APPIMAGE"
+          "$APPIMAGE" --appimage-extract
+
+          # Strip bundled EGL/GL libs that conflict with host GPU drivers
+          STRIP_LIBS=(
+            libEGL.so libEGL.so.1
+            libGL.so libGL.so.1
+            libGLdispatch.so libGLdispatch.so.0
+            libGLX.so libGLX.so.0
+            libGLESv2.so libGLESv2.so.2
+          )
+          for lib in "${STRIP_LIBS[@]}"; do
+            find squashfs-root -name "$lib" -delete -print 2>/dev/null || true
+          done
+
+          # Detect inner binary name from existing AppRun
+          INNER_BIN=$(grep -oP '(?<=exec\s\$\{HERE\}/)[^\s"]+|(?<=exec\s"\$\{HERE\}/)[^"]+' squashfs-root/AppRun 2>/dev/null \
+            || basename "$APPIMAGE" .AppImage)
+
+          echo "Detected inner binary: $INNER_BIN"
+
+          # Write new AppRun
+          cat > squashfs-root/AppRun << 'APPRUN_EOF'
+          #!/bin/bash
+          set -e
+          HERE="$(dirname "$(readlink -f "$0")")"
+
+          # --- Locale: normalise to C.UTF-8 if the user's locale is not generated ---
+          if ! locale -a 2>/dev/null | grep -qi "^${LANG%%.*}"; then
+            export LC_ALL=C.UTF-8
+            export LANG=C.UTF-8
+          fi
+
+          # --- Accessibility: silence "AT-SPI: Could not obtain desktop bus" ---
+          export NO_AT_BRIDGE=1
+
+          # --- EGL platform auto-detection ---
+          if [ -n "${WAYLAND_DISPLAY:-}" ]; then
+            export EGL_PLATFORM=wayland
+          elif [ -n "${DISPLAY:-}" ]; then
+            export EGL_PLATFORM=x11
+          fi
+
+          # --- Point GLVND to the system ICD directory ---
+          for d in /usr/share/glvnd/egl_vendor.d /usr/share/egl/egl_external_platform.d; do
+            [ -d "$d" ] && export __EGL_VENDOR_LIBRARY_DIRS="${__EGL_VENDOR_LIBRARY_DIRS:+$__EGL_VENDOR_LIBRARY_DIRS:}$d"
+          done
+
+          # --- Preload first found system libEGL.so.1 so the host driver is used ---
+          for p in /usr/lib/x86_64-linux-gnu/libEGL.so.1 \
+                   /usr/lib64/libEGL.so.1 \
+                   /usr/lib/libEGL.so.1; do
+            if [ -f "$p" ]; then
+              export LD_PRELOAD="${LD_PRELOAD:+$LD_PRELOAD:}$p"
+              break
+            fi
+          done
+
+          # --- Software rendering fallback ---
+          if [ "${LIBGL_ALWAYS_SOFTWARE:-}" = "1" ]; then
+            export GALLIUM_DRIVER=llvmpipe
+            export MESA_GL_VERSION_OVERRIDE=3.3
+          fi
+
+          # --- LD_LIBRARY_PATH: system paths BEFORE bundled paths ---
+          SYS_PATHS="/usr/lib/x86_64-linux-gnu:/usr/lib64:/usr/lib"
+          export LD_LIBRARY_PATH="${SYS_PATHS}:${HERE}/usr/lib:${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+
+          exec "${HERE}/__INNER_BIN__" "$@"
+          APPRUN_EOF
+
+          # De-indent (the heredoc above is indented for YAML readability)
+          sed -i 's/^          //' squashfs-root/AppRun
+          # Substitute the real binary name
+          sed -i "s|__INNER_BIN__|${INNER_BIN}|g" squashfs-root/AppRun
+          chmod +x squashfs-root/AppRun
+
+          echo "--- New AppRun contents ---"
+          cat squashfs-root/AppRun
+
+          # Repack
+          ./appimagetool.AppImage --appimage-extract-and-run --comp gzip squashfs-root "$APPIMAGE.patched"
+          mv "$APPIMAGE.patched" "$APPIMAGE"
+
+          echo "::notice::AppImage patched successfully: $APPIMAGE"
 
   publish-release:
     needs: [create-release, build-tauri]

@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.4] - 2026-04-27
+
+### Bug Fixes
+
+- **Cross-distro AppImage EGL compatibility** - Post-build patching step strips bundled Mesa EGL/GL libs from the AppImage that shadow host GPU drivers on distros like Arch Linux, causing EGL_BAD_ALLOC crashes. The new AppRun wrapper normalises locale to C.UTF-8 if not generated, silences AT-SPI accessibility bridge warnings, auto-detects EGL_PLATFORM from Wayland/X11 session, points GLVND to system ICD paths, preloads system libEGL.so.1, supports llvmpipe software rendering fallback, and orders LD_LIBRARY_PATH with system paths before bundled paths.
+- Added `libfuse2` to Ubuntu CI dependencies for AppImage extraction.
+
+---
+
 ## [1.1.3] - 2026-04-27
 
 ### Bug Fixes
