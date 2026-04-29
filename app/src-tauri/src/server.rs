@@ -267,18 +267,19 @@ fn mime_type_from_media(media: &Media) -> String {
     }
 }
 
-pub async fn start_server(state: Arc<TelegramState>, port: u16) -> std::io::Result<()> {
+pub async fn start_server(state: Arc<TelegramState>, port: u16) -> std::io::Result<actix_web::dev::Server> {
     let state_data = web::Data::new(state);
 
     log::info!("Starting Streaming Server on port {}", port);
 
-    HttpServer::new(move || {
+    let server = HttpServer::new(move || {
         App::new()
             .wrap(Cors::permissive())
             .app_data(state_data.clone())
             .service(stream_media)
     })
     .bind(("127.0.0.1", port))?
-    .run()
-    .await
+    .run(); // Return Server, don't .await here — caller needs the handle first
+
+    Ok(server)
 }

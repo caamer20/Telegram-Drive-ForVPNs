@@ -16,7 +16,7 @@ pub struct TelegramState {
     pub password_token: Arc<Mutex<Option<PasswordToken>>>,
     pub api_id: Arc<Mutex<Option<i32>>>,
     /// Send to this channel to request runner shutdown
-    pub runner_shutdown: Arc<Mutex<Option<tokio::sync::oneshot::Sender<()>>>>,
+    pub runner_shutdown: Arc<std::sync::Mutex<Option<tokio::sync::oneshot::Sender<()>>>>,
     /// Counter for debugging runner lifecycle
     pub runner_count: Arc<std::sync::atomic::AtomicU32>,
     /// Cache resolved peers to avoid iterating all dialogs on every operation

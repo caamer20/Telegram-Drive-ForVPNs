@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.5] - 2026-04-29
+
+### Bug Fixes
+
+- **Graceful Shutdown** - Fixed an issue where the application would ignore Ctrl+C (SIGINT) and window close events, requiring a forced kill to exit. The process now terminates cleanly by gracefully shutting down the detached Actix-web streaming server and signaling the grammers network runner to close all connections.
+
+---
+
 ## [1.1.4] - 2026-04-27
 
 ### Bug Fixes
