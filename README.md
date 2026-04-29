@@ -2,7 +2,7 @@
 
 **Telegram Drive** is an open-source, cross-platform desktop application that turns your Telegram account into an unlimited, secure cloud storage drive. Built with **Tauri**, **Rust**, and **React**.
 
-This specific fork has been **heavily optimized for users in China accessing the Telegram API through a VPN**. It includes custom network polling, automatic multi-DC fallback, exponential backoff retries for high-latency connections, and deep API optimizations to minimize round trips.
+This specific fork has been **heavily optimized for users with low bandwith accessing the Telegram API through a VPN**. It includes custom network polling, automatic multi-DC fallback, exponential backoff retries for high-latency connections, and deep API optimizations to minimize round trips.
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20MacOS%20%7C%20Linux-blue)
