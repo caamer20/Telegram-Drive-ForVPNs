@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.6] - 2026-05-01
+
+### Features
+
+- **Support the Project** - Added a new "Donate" button and modal to the authentication screen with links to support the project via PayPal, Litecoin, and Bitcoin.
+
+### Bug Fixes
+
+- Added missing `@tauri-apps/plugin-shell` frontend dependency required to open external links natively.
+
+---
+
 ## [1.1.5] - 2026-04-29
 
 ### Bug Fixes

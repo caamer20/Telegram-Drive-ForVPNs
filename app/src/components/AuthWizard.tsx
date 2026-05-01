@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { motion, AnimatePresence } from "framer-motion";
-import { Phone, Key, Lock, ArrowRight, Settings, ShieldCheck, Sun, Moon, HelpCircle, ExternalLink, X, Globe } from "lucide-react";
+import { Phone, Key, Lock, ArrowRight, Settings, ShieldCheck, Sun, Moon, HelpCircle, ExternalLink, X, Globe, Heart } from "lucide-react";
 import { load } from '@tauri-apps/plugin-store';
 import { openUrl } from '@tauri-apps/plugin-opener';
+import { open } from '@tauri-apps/plugin-shell';
 import { useTheme } from '../context/ThemeContext';
 
 type Step = "setup" | "phone" | "code" | "password";
@@ -58,6 +59,7 @@ export function AuthWizard({ onLogin }: { onLogin: () => void }) {
     const [error, setError] = useState<string | null>(null);
     const [floodWait, setFloodWait] = useState<number | null>(null);
     const [showHelp, setShowHelp] = useState(false);
+    const [showDonate, setShowDonate] = useState(false);
 
 
     useEffect(() => {
@@ -476,6 +478,16 @@ export function AuthWizard({ onLogin }: { onLogin: () => void }) {
                         <p className="text-red-400 text-sm leading-snug">{error}</p>
                     </motion.div>
                 )}
+
+                <div className="mt-8 pt-4 border-t border-white/5 text-center">
+                    <button
+                        onClick={() => setShowDonate(true)}
+                        className="text-xs text-white/40 hover:text-white transition-colors flex items-center justify-center gap-1.5 mx-auto"
+                    >
+                        <Heart className="w-3.5 h-3.5 text-red-500/80" />
+                        Donate
+                    </button>
+                </div>
             </motion.div>
 
 
@@ -559,6 +571,59 @@ export function AuthWizard({ onLogin }: { onLogin: () => void }) {
                 )}
             </AnimatePresence>
 
+
+            <AnimatePresence>
+                {showDonate && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+                        onClick={() => setShowDonate(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            className="glass bg-telegram-surface border border-telegram-border rounded-2xl p-6 max-w-sm w-full shadow-2xl"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Header with perfectly centered text and right-aligned close button */}
+                            <div className="relative flex items-center justify-center mb-6">
+                                <h2 className="text-xl font-bold text-telegram-text text-center">
+                                    Support the Project
+                                </h2>
+                                <button onClick={() => setShowDonate(false)} className="absolute right-0 p-2 hover:bg-telegram-hover rounded-lg transition-colors">
+                                    <X className="w-5 h-5 text-telegram-subtext" />
+                                </button>
+                            </div>
+
+                            <div className="space-y-4 text-center">
+                                <p className="text-sm text-telegram-subtext mb-6">
+                                    If you find Telegram Drive useful, consider supporting its development!
+                                </p>
+
+                                <div className="space-y-4">
+                                    {/* PayPal Button */}
+                                    <a href="#" onClick={(e) => { e.preventDefault(); open('https://www.paypal.me/Caamer20'); }} className="block hover:opacity-80 transition-opacity">
+                                        <img src="https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png" alt="Donate with PayPal" width="200" className="mx-auto" />
+                                    </a>
+
+                                    {/* Litecoin Button */}
+                                    <a href="#" onClick={(e) => { e.preventDefault(); open('https://link.trustwallet.com/send?address=ltc1q6wkr5ac4u0pxx4hx7xgwn0gsaku25ws0df73rp&asset=c2'); }} className="block hover:opacity-80 transition-opacity">
+                                        <img src="https://img.shields.io/badge/Donate-LTC-345D9D?style=for-the-badge&logo=litecoin&logoColor=white" alt="Donate LTC" className="mx-auto h-[28px]" />
+                                    </a>
+
+                                    {/* Bitcoin Button */}
+                                    <a href="#" onClick={(e) => { e.preventDefault(); open('https://link.trustwallet.com/send?asset=c0&address=bc1q5pt7m2fk6w0dzsnf6vvd5k6nw5k44785286ujy'); }} className="block hover:opacity-80 transition-opacity">
+                                        <img src="https://img.shields.io/badge/Donate-BTC-F7931A?style=for-the-badge&logo=bitcoin&logoColor=white" alt="Donate BTC" className="mx-auto h-[28px]" />
+                                    </a>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             <div className="fixed top-[-20%] left-[-10%] w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[120px] pointer-events-none -z-10" />
             <div className="fixed bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-purple-600/10 rounded-full blur-[100px] pointer-events-none -z-10" />
