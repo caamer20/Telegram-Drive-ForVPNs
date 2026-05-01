@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.7] - 2026-05-01
+
+### Bug Fixes
+
+- **Grid Selection** - Fixed a bug where clicking the selection circle on a file card bubbled the event and triggered single-file selection. Multi-selection via the circle is now natively supported without requiring modifier keys, specifically constrained to grid view.
+
+---
+
 ## [1.1.6] - 2026-05-01
 
 ### Features

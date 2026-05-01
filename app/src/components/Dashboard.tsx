@@ -208,6 +208,10 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
         }
     }
 
+    const handleToggleSelection = useCallback((id: number) => {
+        setSelectedIds(ids => ids.includes(id) ? ids.filter(i => i !== id) : [...ids, id]);
+    }, []);
+
     const handlePreview = (file: TelegramFile) => {
         const ext = file.name.toLowerCase().split('.').pop() || '';
         const isMedia = COMMON_EXTENSION_SETS.VIDEOS.has(ext) || COMMON_EXTENSION_SETS.AUDIO.has(ext);
@@ -352,6 +356,7 @@ export function Dashboard({ onLogout }: { onLogout: () => void }) {
                     onPreview={handlePreview}
                     onManualUpload={handleManualUpload}
                     onSelectionClear={() => setSelectedIds([])}
+                    onToggleSelection={handleToggleSelection}
                     onDrop={handleDropOnFolder}
                     onDragStart={(fileId) => setInternalDragFileId(fileId)}
                     onDragEnd={() => setTimeout(() => setInternalDragFileId(null), 50)}

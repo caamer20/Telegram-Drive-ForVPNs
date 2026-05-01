@@ -23,6 +23,7 @@ interface FileExplorerProps {
     onPreview: (file: TelegramFile) => void;
     onManualUpload: () => void;
     onSelectionClear: () => void;
+    onToggleSelection?: (id: number) => void;
     onDrop?: (e: React.DragEvent, folderId: number) => void;
     onDragStart?: (fileId: number) => void;
     onDragEnd?: () => void;
@@ -57,7 +58,7 @@ function useGridColumns(containerRef: React.RefObject<HTMLDivElement | null>) {
 
 export function FileExplorer({
     files, loading, error, viewMode, selectedIds, activeFolderId,
-    onFileClick, onDelete, onDownload, onPreview, onManualUpload, onSelectionClear, onDrop, onDragStart, onDragEnd
+    onFileClick, onDelete, onDownload, onPreview, onManualUpload, onSelectionClear, onToggleSelection, onDrop, onDragStart, onDragEnd
 }: FileExplorerProps) {
     const [sortField, setSortField] = useState<SortField>('name');
     const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
@@ -244,6 +245,7 @@ export function FileExplorer({
                                                 onDelete={() => onDelete(file.id)}
                                                 onDownload={() => onDownload(file.id, file.name)}
                                                 onPreview={() => onPreview(file)}
+                                                onToggleSelection={onToggleSelection ? () => onToggleSelection(file.id) : undefined}
                                                 onDrop={onDrop}
                                                 onDragStart={onDragStart}
                                                 onDragEnd={onDragEnd}
