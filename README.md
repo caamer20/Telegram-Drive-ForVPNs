@@ -110,11 +110,20 @@ Licensed under the **MIT License**.
 *Disclaimer: This application is not affiliated with Telegram FZ-LLC. Use responsibly and in accordance with Telegram's Terms of Service.*
 
 
-<a href="https://www.paypal.me/Caamer20">
-<img src="https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png" alt="Donate with PayPal" width="200"/>
-</a>
+<div align="center">
+  <!-- PayPal -->
+  <a href="https://www.paypal.me/Caamer20" style="display: inline-block; vertical-align: middle; margin: 0 8px;">
+    <img src="https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png" alt="Donate with PayPal" width="180" style="vertical-align: middle;">
+  </a>
 
-[![Donate LTC](https://img.shields.io/badge/Donate-LTC-345D9D?style=for-the-badge&logo=litecoin&logoColor=white)](https://link.trustwallet.com/send?address=ltc1q6wkr5ac4u0pxx4hx7xgwn0gsaku25ws0df73rp&asset=c2)
+  <!-- Litecoin (opens native wallet) -->
+  <a href="litecoin:ltc1q6wkr5ac4u0pxx4hx7xgwn0gsaku25ws0df73rp" style="display: inline-block; vertical-align: middle; margin: 0 8px; text-decoration: none;">
+    <img src="https://img.shields.io/badge/Donate-LTC-345D9D?style=for-the-badge&logo=litecoin&logoColor=white" alt="Donate LTC" style="vertical-align: middle;">
+  </a>
 
-[![Donate BTC](https://img.shields.io/badge/Donate-BTC-F7931A?style=for-the-badge&logo=bitcoin&logoColor=white)](https://link.trustwallet.com/send?asset=c0&address=bc1q5pt7m2fk6w0dzsnf6vvd5k6nw5k44785286ujy)
+  <!-- Bitcoin (opens native wallet) -->
+  <a href="bitcoin:bc1q5pt7m2fk6w0dzsnf6vvd5k6nw5k44785286ujy" style="display: inline-block; vertical-align: middle; margin: 0 8px; text-decoration: none;">
+    <img src="https://img.shields.io/badge/Donate-BTC-F7931A?style=for-the-badge&logo=bitcoin&logoColor=white" alt="Donate BTC" style="vertical-align: middle;">
+  </a>
+</div>
 
