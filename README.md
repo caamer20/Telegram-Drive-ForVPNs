@@ -112,18 +112,30 @@ Licensed under the **MIT License**.
 
 <div align="center">
   <!-- PayPal -->
-  <a href="https://www.paypal.me/Caamer20" style="display: inline-block; vertical-align: middle; margin: 0 8px;">
-    <img src="https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png" alt="Donate with PayPal" width="180" style="vertical-align: middle;">
-  </a>
+  <div style="margin: 15px 0;">
+    <a href="https://www.paypal.me/Caamer20">
+      <img src="https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png" alt="Donate with PayPal" width="200">
+    </a>
+    <div style="font-size: 14px; margin-top: 8px;">paypal.me/Caamer20</div>
+  </div>
 
-  <!-- Litecoin (opens native wallet) -->
-  <a href="litecoin:ltc1q6wkr5ac4u0pxx4hx7xgwn0gsaku25ws0df73rp" style="display: inline-block; vertical-align: middle; margin: 0 8px; text-decoration: none;">
-    <img src="https://img.shields.io/badge/Donate-LTC-345D9D?style=for-the-badge&logo=litecoin&logoColor=white" alt="Donate LTC" style="vertical-align: middle;">
-  </a>
+  <!-- Litecoin -->
+  <div style="margin: 15px 0;">
+    <a href="litecoin:ltc1q6wkr5ac4u0pxx4hx7xgwn0gsaku25ws0df73rp">
+      <img src="https://img.shields.io/badge/Donate-LTC-345D9D?style=for-the-badge&logo=litecoin&logoColor=white" alt="Donate LTC">
+    </a>
+    <div style="font-family: monospace; font-size: 13px; margin-top: 8px; word-break: break-all;">
+      ltc1q6wkr5ac4u0pxx4hx7xgwn0gsaku25ws0df73rp
+    </div>
+  </div>
 
-  <!-- Bitcoin (opens native wallet) -->
-  <a href="bitcoin:bc1q5pt7m2fk6w0dzsnf6vvd5k6nw5k44785286ujy" style="display: inline-block; vertical-align: middle; margin: 0 8px; text-decoration: none;">
-    <img src="https://img.shields.io/badge/Donate-BTC-F7931A?style=for-the-badge&logo=bitcoin&logoColor=white" alt="Donate BTC" style="vertical-align: middle;">
-  </a>
+  <!-- Bitcoin -->
+  <div style="margin: 15px 0;">
+    <a href="bitcoin:bc1q5pt7m2fk6w0dzsnf6vvd5k6nw5k44785286ujy">
+      <img src="https://img.shields.io/badge/Donate-BTC-F7931A?style=for-the-badge&logo=bitcoin&logoColor=white" alt="Donate BTC">
+    </a>
+    <div style="font-family: monospace; font-size: 13px; margin-top: 8px; word-break: break-all;">
+      bc1q5pt7m2fk6w0dzsnf6vvd5k6nw5k44785286ujy
+    </div>
+  </div>
 </div>
-
