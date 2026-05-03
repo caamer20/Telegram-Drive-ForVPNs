@@ -54,7 +54,7 @@ pub fn run() {
             std::thread::spawn(move || {
                 let sys = actix_rt::System::new();
                 sys.block_on(async move {
-                    match server::start_server(state, 14201).await {
+                    match server::start_server(state, server::STREAMING_PORT).await {
                         Ok(server) => {
                             // Store the handle BEFORE awaiting so RunEvent::Exit can stop it
                             *handle_for_thread.lock().unwrap() = Some(server.handle());
@@ -91,6 +91,7 @@ pub fn run() {
             commands::cmd_clean_cache,
             commands::cmd_get_thumbnail,
             commands::cmd_set_proxy,
+            commands::cmd_get_stream_port,
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application");

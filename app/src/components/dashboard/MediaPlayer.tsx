@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Loader2 } from 'lucide-react';
+import { invoke } from '@tauri-apps/api/core';
 import { TelegramFile } from '../../types';
 import { COMMON_EXTENSION_SETS } from '../../utils/fileExtensions';
 
@@ -11,8 +12,17 @@ interface MediaPlayerProps {
 
 export function MediaPlayer({ file, onClose, activeFolderId }: MediaPlayerProps) {
     const folderIdParam = activeFolderId !== null ? activeFolderId.toString() : 'home';
-    const streamUrl = `http://localhost:14201/stream/${folderIdParam}/${file.id}`;
+    // Start with the known default; update immediately from backend so there's no hardcoded port.
+    const [streamPort, setStreamPort] = useState<number>(14201);
     const [isBuffering, setIsBuffering] = useState(true);
+
+    useEffect(() => {
+        invoke<number>('cmd_get_stream_port')
+            .then(setStreamPort)
+            .catch(() => { /* keep default */ });
+    }, []);
+
+    const streamUrl = `http://localhost:${streamPort}/stream/${folderIdParam}/${file.id}`;
 
     const ext = file.name.toLowerCase().split('.').pop() || '';
     const isVideo = COMMON_EXTENSION_SETS.VIDEOS.has(ext);

@@ -5,7 +5,7 @@ use grammers_tl_types as tl;
 use crate::TelegramState;
 use crate::models::{FolderMetadata, FileMetadata};
 use crate::bandwidth::BandwidthManager;
-use crate::commands::utils::{resolve_peer, map_error};
+use crate::commands::utils::{resolve_peer, ensure_cache_warm, map_error};
 use crate::commands::retry::with_retry;
 
 #[tauri::command]
@@ -259,6 +259,9 @@ pub async fn cmd_move_files(
     return Ok(true);
   }
   let client = client_opt.unwrap();
+
+  // Warm the peer cache in one pass so both resolve_peer calls below are O(1) hits.
+  ensure_cache_warm(&client, &state).await;
 
   let source_peer = resolve_peer(&client, source_folder_id, &state).await?;
   let target_peer = resolve_peer(&client, target_folder_id, &state).await?;

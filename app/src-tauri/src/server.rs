@@ -6,6 +6,10 @@ use grammers_client::types::Media;
 
 use std::sync::Arc;
 
+/// The port used by the Actix-web streaming server for media playback.
+/// This MUST differ from the Vite dev server port (14200).
+pub const STREAMING_PORT: u16 = 14201;
+
 /// Maximum retries per chunk fetch before giving up on the stream.
 const CHUNK_RETRY_COUNT: u32 = 3;
 

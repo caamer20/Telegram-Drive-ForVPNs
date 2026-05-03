@@ -50,6 +50,42 @@ pub async fn resolve_peer(client: &Client, folder_id: Option<i64>, state: &Teleg
     }
 }
 
+/// Return the streaming server port to the frontend so it never needs to hardcode it.
+/// This reads the single source of truth: `server::STREAMING_PORT`.
+#[tauri::command]
+pub fn cmd_get_stream_port() -> u16 {
+    crate::server::STREAMING_PORT
+}
+
+/// Ensure the peer cache has been populated at least once.
+///
+/// On cold start (before `cmd_scan_folders` runs), the cache is empty and
+/// every `resolve_peer` call triggers a full dialog iteration. Calling this
+/// once before a bulk operation (e.g. `cmd_move_files`) means both peers
+/// are found in O(1) instead of two separate O(N) dialog scans.
+pub async fn ensure_cache_warm(client: &Client, state: &TelegramState) {
+    {
+        let cache = state.peer_cache.lock().await;
+        if !cache.is_empty() {
+            log::debug!("Peer cache already warm ({} entries)", cache.len());
+            return;
+        }
+    }
+    log::info!("Peer cache cold — pre-warming from dialog list...");
+    let mut dialogs = client.iter_dialogs();
+    while let Ok(Some(dialog)) = dialogs.next().await {
+        let peer_id = match &dialog.peer {
+            Peer::Channel(c) => Some(c.raw.id),
+            Peer::User(u) => Some(u.raw.id()),
+            _ => None,
+        };
+        if let Some(id) = peer_id {
+            state.peer_cache.lock().await.insert(id, dialog.peer.clone());
+        }
+    }
+    log::info!("Peer cache warmed ({} entries)", state.peer_cache.lock().await.len());
+}
+
 #[tauri::command]
 pub fn cmd_log(message: String) {
     log::info!("[FRONTEND] {}", message);
