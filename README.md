@@ -72,7 +72,10 @@ This version includes specific backend enhancements to handle the high latency, 
 
 ### Prerequisites
 *   Node.js (v18+)
-*   Rust (latest stable)
+*   Rust (latest stable) - Install via [rustup](https://rustup.rs/):
+    *   **macOS/Linux:** `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
+    *   **Windows:** Download and run `rustup-init.exe` from [rustup.rs](https://rustup.rs/)
+*   OS-Specific Build Tools for Tauri (e.g., `build-essential`, `libwebkit2gtk-4.1-dev` on Ubuntu, Visual Studio C++ Build Tools on Windows, Xcode on macOS). See [Tauri Prerequisites](https://v2.tauri.app/start/prerequisites/) for full details.
 *   A Telegram Account
 *   API ID and Hash from [my.telegram.org](https://my.telegram.org)
 
