@@ -71,13 +71,26 @@ This version includes specific backend enhancements to handle the high latency, 
 ##  Getting Started
 
 ### Prerequisites
-*   Node.js (v18+)
-*   Rust (latest stable) - Install via [rustup](https://rustup.rs/):
+*   **Node.js (v18+)**: [Download here](https://nodejs.org/)
+*   **Rust (latest stable)**: Required to compile the Tauri backend. Install via [rustup](https://rustup.rs/):
     *   **macOS/Linux:** `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
     *   **Windows:** Download and run `rustup-init.exe` from [rustup.rs](https://rustup.rs/)
-*   OS-Specific Build Tools for Tauri (e.g., `build-essential`, `libwebkit2gtk-4.1-dev` on Ubuntu, Visual Studio C++ Build Tools on Windows, Xcode on macOS). See [Tauri Prerequisites](https://v2.tauri.app/start/prerequisites/) for full details.
-*   A Telegram Account
-*   API ID and Hash from [my.telegram.org](https://my.telegram.org)
+    *   *Verify installation:* run `rustc --version` and `cargo --version` in your terminal.
+*   **OS-Specific Build Tools for Tauri**: 
+    *   **macOS:** Xcode Command Line Tools (`xcode-select --install`).
+    *   **Linux (Ubuntu/Debian):** `sudo apt update && sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev`
+    *   **Windows (CRITICAL):** You **must** install the [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/). During installation, select the **"Desktop development with C++"** workload. Without this, you will get a `linker 'link.exe' not found` error.
+    *   **Windows (WebView2):** Windows 10/11 users usually have this pre-installed. If not, download the [WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/#download-section).
+    *   *Reference:* See the official [Tauri v2 Prerequisites Guide](https://v2.tauri.app/start/prerequisites/) for detailed instructions.
+*   **Telegram API Credentials**: You need your own API ID and API Hash to communicate with Telegram's servers.
+    1. Log into [my.telegram.org](https://my.telegram.org).
+    2. Go to "API development tools" and create a new application to get your `api_id` and `api_hash`.
+
+> [!NOTE]  
+> **First-run Compile Time:** The initial build (`npm run tauri dev` or `npm run tauri build`) will download and compile over 300 Rust crates. This process can take **5 to 15 minutes** depending on your hardware. Subsequent builds will be much faster.
+
+> [!TIP]
+> **NPM Vulnerabilities:** You may see vulnerability warnings during `npm install`. These are usually related to build tools and dev dependencies. You can optionally run `npm audit fix`, but it is not strictly required to run the app.
 
 ### Installation
 
