@@ -11,7 +11,7 @@ interface MediaPlayerProps {
 
 export function MediaPlayer({ file, onClose, activeFolderId }: MediaPlayerProps) {
     const folderIdParam = activeFolderId !== null ? activeFolderId.toString() : 'home';
-    const streamUrl = `http://localhost:14200/stream/${folderIdParam}/${file.id}`;
+    const streamUrl = `http://localhost:14201/stream/${folderIdParam}/${file.id}`;
     const [isBuffering, setIsBuffering] = useState(true);
 
     const ext = file.name.toLowerCase().split('.').pop() || '';

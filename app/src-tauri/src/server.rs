@@ -16,26 +16,37 @@ async fn stream_media(
     data: web::Data<Arc<TelegramState>>,
 ) -> impl Responder {
     let (folder_id_str, message_id) = path.into_inner();
+    log::info!("stream_media request received for folder: {}, message_id: {}", folder_id_str, message_id);
 
     // Parse folder ID
     let folder_id = if folder_id_str == "me" || folder_id_str == "home" || folder_id_str == "null" {
+        log::debug!("Folder ID is root/home: {}", folder_id_str);
         None
     } else {
         match folder_id_str.parse::<i64>() {
-            Ok(id) => Some(id),
-            Err(_) => return HttpResponse::BadRequest().body("Invalid folder ID"),
+            Ok(id) => {
+                log::debug!("Parsed folder ID: {}", id);
+                Some(id)
+            },
+            Err(e) => {
+                log::error!("Failed to parse folder ID '{}': {}", folder_id_str, e);
+                return HttpResponse::BadRequest().body("Invalid folder ID");
+            }
         }
     };
 
     let client_opt = { data.client.lock().await.clone() };
 
     if let Some(client) = client_opt {
+        log::debug!("Client connected, resolving peer...");
         match resolve_peer(&client, folder_id, &**data).await {
             Ok(peer) => {
+                log::debug!("Peer resolved successfully, fetching message {}", message_id);
                 match client.get_messages_by_id(&peer, &[message_id]).await {
                     Ok(messages) => {
                         if let Some(Some(msg)) = messages.first() {
                             if let Some(media) = msg.media() {
+                                log::debug!("Message fetched successfully and contains media");
                                 let total_size = match &media {
                                     Media::Document(d) => d.size() as u64,
                                     Media::Photo(_) => 0,
@@ -87,16 +98,27 @@ async fn stream_media(
                                             .finish()
                                     }
                                 };
+                            } else {
+                                log::error!("Message {} contains no media", message_id);
                             }
+                        } else {
+                            log::error!("Message {} not found in folder {:?}", message_id, folder_id);
                         }
                         HttpResponse::NotFound().body("Message or media not found")
                     },
-                    Err(e) => HttpResponse::InternalServerError().body(format!("Failed to fetch message: {}", e)),
+                    Err(e) => {
+                        log::error!("Failed to fetch message {}: {}", message_id, e);
+                        HttpResponse::InternalServerError().body(format!("Failed to fetch message: {}", e))
+                    },
                 }
             },
-            Err(e) => HttpResponse::BadRequest().body(format!("Peer resolution failed: {}", e)),
+            Err(e) => {
+                log::error!("Peer resolution failed for folder {:?}: {}", folder_id, e);
+                HttpResponse::BadRequest().body(format!("Peer resolution failed: {}", e))
+            },
         }
     } else {
+        log::error!("Telegram client is not connected when attempting to stream.");
         HttpResponse::ServiceUnavailable().body("Telegram client not connected")
     }
 }
@@ -109,14 +131,22 @@ fn build_buffered_stream(
 ) -> impl futures::stream::Stream<Item = Result<web::Bytes, actix_web::Error>> {
     async_stream::stream! {
         let mut download_iter = client.iter_download(&media);
+        let mut chunk_count = 0;
 
         loop {
             let chunk_result = fetch_chunk_with_retry(&mut download_iter).await;
             match chunk_result {
                 Ok(Some(bytes)) => {
+                    chunk_count += 1;
+                    if chunk_count % 100 == 0 {
+                        log::debug!("Buffered stream progress: {} chunks sent", chunk_count);
+                    }
                     yield Ok::<_, actix_web::Error>(web::Bytes::from(bytes));
                 }
-                Ok(None) => break,
+                Ok(None) => {
+                    log::debug!("Buffered stream finished after {} chunks", chunk_count);
+                    break;
+                }
                 Err(e) => {
                     log::error!("Stream error after retries: {}", e);
                     break;
@@ -139,15 +169,22 @@ fn build_range_stream(
         let mut download_iter = client.iter_download(&media).skip_chunks(skip_chunks);
         let mut bytes_sent: u64 = 0;
         let mut is_first_chunk = true;
+        let mut chunk_count = 0;
 
         loop {
             if bytes_sent >= content_length {
+                log::debug!("Range stream completed. Total bytes sent: {}", bytes_sent);
                 break;
             }
 
             let chunk_result = fetch_chunk_with_retry(&mut download_iter).await;
             match chunk_result {
                 Ok(Some(bytes)) => {
+                    chunk_count += 1;
+                    if chunk_count % 100 == 0 {
+                        log::debug!("Range stream progress: {} chunks sent", chunk_count);
+                    }
+
                     let data = if is_first_chunk && skip_bytes_in_first_chunk > 0 {
                         is_first_chunk = false;
                         if skip_bytes_in_first_chunk >= bytes.len() {
@@ -165,7 +202,10 @@ fn build_range_stream(
                     bytes_sent += to_send.len() as u64;
                     yield Ok::<_, actix_web::Error>(web::Bytes::from(to_send.to_vec()));
                 }
-                Ok(None) => break,
+                Ok(None) => {
+                    log::debug!("Range stream reached end of file after {} chunks", chunk_count);
+                    break;
+                }
                 Err(e) => {
                     log::error!("Range stream error after retries: {}", e);
                     break;
@@ -280,6 +320,8 @@ pub async fn start_server(state: Arc<TelegramState>, port: u16) -> std::io::Resu
     })
     .bind(("127.0.0.1", port))?
     .run(); // Return Server, don't .await here — caller needs the handle first
+
+    log::info!("Streaming Server started successfully on http://127.0.0.1:{}", port);
 
     Ok(server)
 }
